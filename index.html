@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Express Açaí | Peça Online</title>
+    <meta
+      name="description"
+      content="Monte seu açaí do seu jeito e finalize seu pedido no WhatsApp da Express Açaí."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --purple: #6a0dad;
+        --purple-dark: #2f064f;
+        --pink: #c547ff;
+        --neon: #39ff14;
+        --white: #ffffff;
+        --text: #f5f0ff;
+        --glass: rgba(255, 255, 255, 0.12);
+        --glass-strong: rgba(255, 255, 255, 0.2);
+        --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", system-ui, sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top, #9d37de, #4f1380 45%, #220338 100%);
+        min-height: 100vh;
+        padding-bottom: 104px;
+      }
+
+      .container {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 0 16px 28px;
+      }
+
+      .hero {
+        margin: 14px 0 16px;
+        min-height: 340px;
+        border-radius: 0 0 28px 28px;
+        position: relative;
+        background: linear-gradient(180deg, rgba(34, 3, 56, 0.2), rgba(34, 3, 56, 0.82)),
+          url("https://images.unsplash.com/photo-1625943555419-56a2cb596640?auto=format&fit=crop&w=1200&q=80")
+            center / cover;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: grid;
+        align-content: end;
+        padding: 22px 18px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 9vw, 3.3rem);
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .hero p {
+        margin: 10px 0;
+        font-size: 0.98rem;
+      }
+
+      .hero .cta {
+        margin-top: 8px;
+      }
+
+      .social-proof {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .proof-item {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 8px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        backdrop-filter: blur(8px);
+      }
+
+      .section-card {
+        background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin: 12px 0;
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow);
+        animation: enter 0.5s ease both;
+      }
+
+      h2 {
+        margin: 4px 0 12px;
+        font-size: 1.05rem;
+      }
+
+      .sizes,
+      .addons,
+      .extras,
+      .payment-options {
+        display: grid;
+        gap: 10px;
+      }
+
+      .sizes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .addons,
+      .extras {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .select-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 10px;
+        transition: transform 0.25s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .select-card:hover {
+        transform: translateY(-3px);
+      }
+
+      .select-card.active {
+        border-color: var(--neon);
+        box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.35), 0 8px 24px rgba(57, 255, 20, 0.2);
+      }
+
+      .select-card:active {
+        animation: bounce 0.22s ease;
+      }
+
+      .size-image,
+      .addon-image,
+      .extra-image {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 12px;
+      }
+
+      .label {
+        display: block;
+        margin-top: 8px;
+        font-size: 0.81rem;
+        font-weight: 700;
+      }
+
+      .sub {
+        font-size: 0.72rem;
+        opacity: 0.9;
+      }
+
+      .badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        background: linear-gradient(100deg, #ff6a00, #ffca28);
+        color: #3d1a00;
+        border-radius: 999px;
+        padding: 5px 8px;
+      }
+
+      .free-counter {
+        font-weight: 800;
+        color: var(--neon);
+        margin: 4px 0 10px;
+      }
+
+      .extra-price {
+        font-size: 0.7rem;
+        color: #ffe788;
+        font-weight: 700;
+      }
+
+      .fields {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field {
+        position: relative;
+      }
+
+      .field input,
+      .field textarea {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--white);
+        padding: 12px 12px 12px 36px;
+        font: inherit;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .field textarea {
+        min-height: 76px;
+        resize: vertical;
+      }
+
+      .field span {
+        position: absolute;
+        left: 12px;
+        top: 10px;
+        opacity: 0.85;
+      }
+
+      .field input:focus,
+      .field textarea:focus {
+        border-color: var(--neon);
+        box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.28);
+      }
+
+      .payment-options {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .summary {
+        position: sticky;
+        bottom: 84px;
+        background: rgba(0, 0, 0, 0.35);
+      }
+
+      .summary ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .summary-total {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--neon);
+        text-shadow: 0 0 14px rgba(57, 255, 20, 0.42);
+      }
+
+      .cta,
+      .checkout {
+        border: 0;
+        width: 100%;
+        border-radius: 16px;
+        font-weight: 800;
+        color: #093300;
+        background: linear-gradient(135deg, #8bff3f, #39ff14);
+        padding: 14px;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 8px 22px rgba(57, 255, 20, 0.45);
+        animation: pulse 1.7s infinite;
+      }
+
+      .checkout-wrap {
+        position: fixed;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(960px, calc(100% - 24px));
+        z-index: 20;
+      }
+
+      .toast {
+        position: fixed;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.33);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      @media (min-width: 760px) {
+        .addons,
+        .extras {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+        .hero {
+          min-height: 460px;
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+      }
+
+      @keyframes bounce {
+        0% {
+          transform: scale(1);
+        }
+        45% {
+          transform: scale(0.95);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="hero">
+        <h1>EXPRESS AÇAÍ 🍧</h1>
+        <p>O melhor açaí de Fazenda Nova</p>
+        <p>Monte seu açaí do seu jeito e receba em casa</p>
+        <button class="cta" id="heroOrder">🟢 PEDIR AGORA NO WHATSAPP</button>
+        <div class="social-proof">
+          <div class="proof-item">🚀 Entrega rápida</div>
+          <div class="proof-item">🔥 Mais pedido da cidade</div>
+          <div class="proof-item">⭐ Clientes amam</div>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <h2>🥤 Escolha o tamanho</h2>
+        <div class="sizes" id="sizes"></div>
+      </section>
+
+      <section class="section-card">
+        <h2>🍓 Adicionais grátis</h2>
+        <p class="free-counter" id="addonsCounter">0 de 6 adicionais escolhidos</p>
+        <div class="addons" id="addons"></div>
+      </section>
+
+      <section class="section-card">
+        <h2>💰 Extras Premium (+R$)</h2>
+        <div class="extras" id="extras"></div>
+      </section>
+
+      <section class="section-card">
+        <h2>📍 Entrega</h2>
+        <div class="fields">
+          <label class="field"><span>👤</span><input id="name" placeholder="Nome" /></label>
+          <label class="field"><span>📍</span><input id="address" placeholder="Endereço" /></label>
+          <label class="field"><span>🔢</span><input id="number" placeholder="Número" /></label>
+          <label class="field"><span>🏘️</span><input id="district" placeholder="Bairro" /></label>
+          <label class="field"><span>🧾</span><input id="complement" placeholder="Complemento" /></label>
+          <label class="field"><span>🧭</span><textarea id="reference" placeholder="Referência"></textarea></label>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>💳 Pagamento</h2>
+        <div class="payment-options" id="payments"></div>
+      </section>
+
+      <section class="section-card summary">
+        <h2>📦 Seu Pedido</h2>
+        <ul id="summaryList"></ul>
+        <p class="summary-total" id="summaryTotal">R$ 0,00</p>
+      </section>
+    </div>
+
+    <div class="checkout-wrap">
+      <button class="checkout" id="finishOrder">🚀 FINALIZAR PEDIDO</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const sizeData = [
+        {
+          id: "330ml",
+          label: "330ml",
+          price: 17,
+          freeLimit: 6,
+          image:
+            "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=80",
+        },
+        {
+          id: "440ml",
+          label: "440ml",
+          price: 20,
+          freeLimit: 6,
+          highlight: "🔥 MAIS PEDIDO",
+          image:
+            "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?auto=format&fit=crop&w=500&q=80",
+        },
+        {
+          id: "550ml",
+          label: "550ml",
+          price: 24,
+          freeLimit: 6,
+          image:
+            "https://images.unsplash.com/photo-1514995669114-6081e934b693?auto=format&fit=crop&w=500&q=80",
+        },
+        {
+          id: "770ml",
+          label: "770ml",
+          price: 28,
+          freeLimit: 8,
+          image:
+            "https://images.unsplash.com/photo-1553531889-56cc480ac5cb?auto=format&fit=crop&w=500&q=80",
+        },
+      ];
+
+      const addonsData = [
+        ["banana", "Banana 🍌"],
+        ["morango", "Morango 🍓"],
+        ["granola", "Granola 🥣"],
+        ["leite-condensado", "Leite condensado 🥛"],
+        ["leite-po", "Leite em pó"],
+        ["pacoca", "Paçoca"],
+        ["chocolate", "Chocolate"],
+        ["amendoim", "Amendoim"],
+        ["ovomaltine", "Ovomaltine"],
+      ];
+
+      const extraData = [
+        { id: "nutella", label: "Nutella", price: 5 },
+        { id: "leitinho", label: "Creme Leitinho", price: 5 },
+        { id: "avela", label: "Creme de Avelã", price: 4 },
+        { id: "morango-extra", label: "Morango extra", price: 3 },
+      ];
+
+      const payments = ["💵 Dinheiro", "⚡ Pix", "💳 Cartão"];
+
+      const state = {
+        size: null,
+        addons: new Set(),
+        extras: new Set(),
+        payment: null,
+      };
+
+      const sizesEl = document.querySelector("#sizes");
+      const addonsEl = document.querySelector("#addons");
+      const extrasEl = document.querySelector("#extras");
+      const paymentsEl = document.querySelector("#payments");
+      const summaryList = document.querySelector("#summaryList");
+      const summaryTotal = document.querySelector("#summaryTotal");
+      const addonsCounter = document.querySelector("#addonsCounter");
+      const toast = document.querySelector("#toast");
+
+      function brl(value) {
+        return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1600);
+      }
+
+      function renderSizes() {
+        sizesEl.innerHTML = sizeData
+          .map(
+            (s) => `
+            <button class="select-card ${state.size?.id === s.id ? "active" : ""}" data-size="${s.id}">
+              ${s.highlight ? `<span class="badge">${s.highlight}</span>` : ""}
+              <img class="size-image" src="${s.image}" alt="Açaí ${s.label}" loading="lazy" />
+              <span class="label">${s.label} — ${brl(s.price)}</span>
+              <span class="sub">+${s.freeLimit} adicionais grátis</span>
+            </button>`
+          )
+          .join("");
+      }
+
+      function renderAddons() {
+        addonsEl.innerHTML = addonsData
+          .map(
+            ([id, label], i) => `
+            <button class="select-card ${state.addons.has(id) ? "active" : ""}" data-addon="${id}">
+              <img class="addon-image" src="https://picsum.photos/seed/addon-${id}/280/280" alt="${label}" loading="lazy"/>
+              <span class="label">${label}</span>
+            </button>`
+          )
+          .join("");
+      }
+
+      function renderExtras() {
+        extrasEl.innerHTML = extraData
+          .map(
+            (e, i) => `
+            <button class="select-card ${state.extras.has(e.id) ? "active" : ""}" data-extra="${e.id}">
+              <span class="badge">+R$</span>
+              <img class="extra-image" src="https://picsum.photos/seed/extra-${e.id}/280/280" alt="${e.label}" loading="lazy"/>
+              <span class="label">${e.label}</span>
+              <span class="extra-price">+ ${brl(e.price)}</span>
+            </button>`
+          )
+          .join("");
+      }
+
+      function renderPayments() {
+        paymentsEl.innerHTML = payments
+          .map(
+            (p) => `
+            <button class="select-card ${state.payment === p ? "active" : ""}" data-payment="${p}">
+              <span class="label">${p}</span>
+            </button>`
+          )
+          .join("");
+      }
+
+      function calculateTotal() {
+        const sizePrice = state.size?.price || 0;
+        const extrasTotal = extraData
+          .filter((x) => state.extras.has(x.id))
+          .reduce((sum, x) => sum + x.price, 0);
+        return sizePrice + extrasTotal;
+      }
+
+      function updateSummary() {
+        const total = calculateTotal();
+        const selectedAddons = addonsData
+          .filter(([id]) => state.addons.has(id))
+          .map(([, label]) => label);
+        const selectedExtras = extraData.filter((x) => state.extras.has(x.id));
+
+        addonsCounter.textContent = `${selectedAddons.length} de ${state.size?.freeLimit || 6} adicionais escolhidos`;
+
+        summaryList.innerHTML = `
+          <li><strong>Tamanho:</strong> ${state.size ? `${state.size.label} (${brl(state.size.price)})` : "Não selecionado"}</li>
+          <li><strong>Adicionais:</strong> ${selectedAddons.length ? selectedAddons.join(", ") : "Nenhum"}</li>
+          <li><strong>Extras:</strong> ${selectedExtras.length ? selectedExtras.map((e) => `${e.label} (${brl(e.price)})`).join(", ") : "Nenhum"}</li>
+          <li><strong>Pagamento:</strong> ${state.payment || "Não selecionado"}</li>
+        `;
+
+        summaryTotal.textContent = brl(total);
+      }
+
+      function refresh() {
+        renderSizes();
+        renderAddons();
+        renderExtras();
+        renderPayments();
+        updateSummary();
+      }
+
+      document.body.addEventListener("click", (event) => {
+        const sizeBtn = event.target.closest("[data-size]");
+        if (sizeBtn) {
+          const selected = sizeData.find((s) => s.id === sizeBtn.dataset.size);
+          state.size = selected;
+          if (state.addons.size > selected.freeLimit) {
+            state.addons = new Set([...state.addons].slice(0, selected.freeLimit));
+          }
+          showToast(`${selected.label} selecionado`);
+          refresh();
+          return;
+        }
+
+        const addonBtn = event.target.closest("[data-addon]");
+        if (addonBtn) {
+          const id = addonBtn.dataset.addon;
+          const limit = state.size?.freeLimit || 6;
+          if (state.addons.has(id)) {
+            state.addons.delete(id);
+            showToast("Adicional removido");
+          } else if (state.addons.size < limit) {
+            state.addons.add(id);
+            showToast("Adicional adicionado");
+          } else {
+            showToast(`Limite de ${limit} adicionais grátis`);
+          }
+          refresh();
+          return;
+        }
+
+        const extraBtn = event.target.closest("[data-extra]");
+        if (extraBtn) {
+          const id = extraBtn.dataset.extra;
+          state.extras.has(id) ? state.extras.delete(id) : state.extras.add(id);
+          refresh();
+          return;
+        }
+
+        const paymentBtn = event.target.closest("[data-payment]");
+        if (paymentBtn) {
+          state.payment = paymentBtn.dataset.payment;
+          showToast(`${state.payment} selecionado`);
+          refresh();
+        }
+      });
+
+      function checkout() {
+        if (!state.size) {
+          showToast("Escolha um tamanho para continuar");
+          return;
+        }
+
+        const name = document.querySelector("#name").value.trim();
+        const address = document.querySelector("#address").value.trim();
+        const number = document.querySelector("#number").value.trim();
+        const district = document.querySelector("#district").value.trim();
+        const complement = document.querySelector("#complement").value.trim();
+        const reference = document.querySelector("#reference").value.trim();
+
+        if (!name || !address || !number || !district || !state.payment) {
+          showToast("Preencha entrega e pagamento");
+          return;
+        }
+
+        const selectedAddons = addonsData
+          .filter(([id]) => state.addons.has(id))
+          .map(([, label]) => label)
+          .join(", ") || "Nenhum";
+        const selectedExtras = extraData
+          .filter((e) => state.extras.has(e.id))
+          .map((e) => `${e.label} (${brl(e.price)})`)
+          .join(", ") || "Nenhum";
+
+        const message = `Pedido de Açaí 🍧\n\nLoja: Express Açaí\nTamanho: ${state.size.label} (${brl(
+          state.size.price
+        )})\nAdicionais: ${selectedAddons}\nExtras: ${selectedExtras}\n\nEndereço:\n${name} - ${address}, ${number} - ${district}\nComplemento: ${
+          complement || "Não informado"
+        }\nReferência: ${reference || "Não informado"}\n\nPagamento: ${state.payment}\n\nTotal: ${brl(calculateTotal())}`;
+
+        const url = `https://wa.me/5562993656720?text=${encodeURIComponent(message)}`;
+        window.open(url, "_blank");
+      }
+
+      document.querySelector("#finishOrder").addEventListener("click", checkout);
+      document.querySelector("#heroOrder").addEventListener("click", () => {
+        document.querySelector("#sizes").scrollIntoView({ behavior: "smooth" });
+      });
+
+      refresh();
+    </script>
+  </body>
+</html>
